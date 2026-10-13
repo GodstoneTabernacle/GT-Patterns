@@ -4,7 +4,7 @@ Requires PHP: 7.4
 Stable tag: 3.0.0
 License: GPLv2 or later
 
-132 modern, responsive block patterns (church, events, giving, sermons and general) built only from core WordPress blocks.
+144 modern, responsive block patterns (church, events, giving, sermons and general) built only from core WordPress blocks.
 Colors follow the Blocksy palette (fallback: blue) so everything matches your site.
 
 == Use ==
