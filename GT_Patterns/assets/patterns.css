@@ -190,19 +190,73 @@
 .gt-s .gt-logo{font-weight:800;font-size:clamp(1.05rem,2vw,1.4rem);letter-spacing:-.02em;opacity:.55;text-align:center;color:var(--gt-heading)}
 
 /* ---------- FAQ (core Details block) ---------- */
-.gt-faqs{display:flex;flex-direction:column;gap:.75rem}
-.gt-faqs>*{margin:0!important;margin-block:0!important}
-.gt-faq{background:var(--gt-white);border:1px solid var(--gt-border);border-radius:16px;overflow:hidden}
-.gt-faq summary{cursor:pointer;font-weight:600;font-size:1.05rem;padding:1.1rem 3.2rem 1.1rem 1.4rem;position:relative;list-style:none;color:var(--gt-heading)}
-.gt-faq summary::-webkit-details-marker{display:none}
-.gt-faq summary::marker{content:""}
-.gt-faq summary::after{content:"+";position:absolute;right:1.4rem;top:50%;transform:translateY(-50%);font-size:1.5rem;line-height:1;color:var(--gt-primary)}
-.gt-faq[open] summary::after{content:"−"}
-/* theme default flow spacing (margin-block-end) must not leak inside the open panel */
-.gt-faq>:not(summary){padding:0 1.4rem 1.25rem;margin:0!important;margin-block:0!important}
-:is(.gt-dark,.gt-grad,.gt-primary) .gt-faq{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16)}
-:is(.gt-dark,.gt-grad,.gt-primary) .gt-faq summary{color:#fff}
+/* ---------- FAQ (core Details block) ---------- */
+.gt-faqs {
+	display: flex;
+	flex-direction: column;
+	gap: .75rem;
+	/* Space between accordion items */
+}
 
+.gt-faqs>* {
+	margin: 0 !important;
+}
+
+.gt-faq {
+	--gt-gap: 0;
+	display: block;
+	background: var(--gt-white);
+	border: 1px solid var(--gt-border);
+	border-radius: 16px;
+	overflow: hidden;
+}
+
+.gt-faq summary {
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 1.05rem;
+	padding: 1.1rem 3.2rem 1.1rem 1.4rem;
+	position: relative;
+	list-style: none;
+	color: var(--gt-heading);
+}
+
+.gt-faq summary::-webkit-details-marker {
+	display: none;
+}
+
+.gt-faq summary::marker {
+	content: "";
+}
+
+.gt-faq summary::after {
+	content: "+";
+	position: absolute;
+	right: 1.4rem;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 1.5rem;
+	line-height: 1;
+	color: var(--gt-primary);
+}
+
+.gt-faq[open] summary::after {
+	content: "−";
+}
+
+.gt-faq> :not(summary) {
+	padding: 0 1.4rem 1rem;
+	margin: 0 !important;
+}
+
+:is(.gt-dark, .gt-grad, .gt-primary) .gt-faq {
+	background: rgba(255, 255, 255, .07);
+	border-color: rgba(255, 255, 255, .16);
+}
+
+:is(.gt-dark, .gt-grad, .gt-primary) .gt-faq summary {
+	color: #fff;
+}
 /* ---------- Table (pricing comparison) ---------- */
 .gt-table{overflow-x:auto;margin:0}
 .gt-table table{width:100%;min-width:560px;border-collapse:collapse;text-align:center}
