@@ -28,6 +28,7 @@ function gt_patterns_categories()
 	return array(
 		'gt-grid'         => 'GT Grid',
 		'gt-pages'        => 'GT Full Pages',
+		'gt-convention'   => 'GT Convention',
 		'gt-hero'         => 'GT Hero',
 		'gt-visit'        => 'GT Visit & Welcome',
 		'gt-sermons'      => 'GT Sermons & Worship',
