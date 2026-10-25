@@ -3,7 +3,7 @@
 /**
  * Plugin Name:       GT_Patterns
  * Description:       A library of modern, responsive block patterns for church and general websites: visit, sermons, ministries, events, giving, heroes, features, pricing, forms and full pages. Core blocks only. Colors follow your Blocksy palette.
- * Version:           1.0.3
+ * Version:           1.1.0
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Author:            GT
@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-define('GT_PATTERNS_VERSION', '1.0.3');
+define('GT_PATTERNS_VERSION', '1.1.0');
 define('GT_PATTERNS_DIR', plugin_dir_path(__FILE__));
 define('GT_PATTERNS_URL', plugin_dir_url(__FILE__));
 
@@ -92,13 +92,59 @@ function gt_patterns_register()
 				'description'   => isset($pattern['description']) ? $pattern['description'] : '',
 				'categories'    => ! empty($pattern['categories']) ? (array) $pattern['categories'] : array('gt-custom'),
 				'keywords'      => isset($pattern['keywords']) ? (array) $pattern['keywords'] : array(),
-				'viewportWidth' => 1200,
-				'content'       => $pattern['content'],
+				'viewportWidth' => 1440,
+				'content'       => gt_patterns_expand_icons($pattern['content']),
 			)
 		);
 	}
 }
 add_action('init', 'gt_patterns_register');
+
+/**
+ * Icons: put SVG files in /assets/icons (e.g. calendar.svg) and write {{icon:calendar}}
+ * anywhere in a pattern file. The SVG is inlined (so it takes the text colour), sized by CSS,
+ * and hard-coded fills/strokes are switched to currentColor. A missing file renders nothing.
+ */
+function gt_patterns_icon_block($name)
+{
+	static $cache = array();
+	$name = preg_replace('/[^a-z0-9_-]/i', '', $name);
+	if (isset($cache[$name])) {
+		return $cache[$name];
+	}
+	$file = GT_PATTERNS_DIR . 'assets/icons/' . $name . '.svg';
+	$out  = '';
+	if ($name !== '' && is_readable($file)) {
+		$svg = (string) file_get_contents($file);
+		$svg = preg_replace('/<\?xml.*?\?>|<!DOCTYPE.*?>|<!--.*?-->/s', '', $svg);
+		if (preg_match('/<svg\b[^>]*>/i', $svg, $m)) {
+			$tag = $m[0];
+			$new = $tag;
+			if (! preg_match('/viewBox=/i', $tag) && preg_match('/width="([\d.]+)/i', $tag, $w) && preg_match('/height="([\d.]+)/i', $tag, $h)) {
+				$new = preg_replace('/<svg\b/i', '<svg viewBox="0 0 ' . $w[1] . ' ' . $h[1] . '"', $new, 1);
+			}
+			$new = preg_replace('/\s(width|height|class)="[^"]*"/i', '', $new);
+			$new = preg_replace('/<svg\b/i', '<svg width="44" height="44" class="gtc-svg" aria-hidden="true" focusable="false"', $new, 1);
+			$svg = str_replace($tag, $new, $svg);
+			if (apply_filters('gt_patterns_icon_recolor', true, $name)) {
+				$svg = preg_replace('/\b(fill|stroke)="(?!none|currentColor|url)[^"]*"/i', '$1="currentColor"', $svg);
+			}
+			$out = "<!-- wp:html -->\n<span class=\"gtc-ico\">" . trim($svg) . "</span>\n<!-- /wp:html -->";
+		}
+	}
+	return $cache[$name] = $out;
+}
+
+function gt_patterns_expand_icons($content)
+{
+	// {{asset:images/file.jpg}} becomes the URL of a file inside this plugin's /assets folder.
+	$content = preg_replace_callback('/\{\{asset:([a-z0-9_\/.-]+)\}\}/i', function ($m) {
+		return esc_url(GT_PATTERNS_URL . 'assets/' . ltrim(str_replace('..', '', $m[1]), '/'));
+	}, $content);
+	return preg_replace_callback('/\{\{icon:([a-z0-9_-]+)\}\}/i', function ($m) {
+		return gt_patterns_icon_block($m[1]);
+	}, $content);
+}
 
 /**
  * Styles load on the front end AND inside the editor.
@@ -114,6 +160,18 @@ function gt_patterns_assets()
 	);
 }
 add_action('enqueue_block_assets', 'gt_patterns_assets');
+
+function gt_patterns_convention_assets()
+{
+	$path = GT_PATTERNS_DIR . 'assets/convention.css';
+	wp_enqueue_style(
+		'gt-patterns-convention',
+		GT_PATTERNS_URL . 'assets/convention.css',
+		array(),
+		file_exists($path) ? (string) filemtime($path) : GT_PATTERNS_VERSION
+	);
+}
+add_action('enqueue_block_assets', 'gt_patterns_convention_assets', 20);
 
 /**
  * Tiny front-end script: scroll-in animations, number counters, countdown, rotating words.
@@ -137,3 +195,16 @@ function gt_patterns_front_script()
 	);
 }
 add_action('wp_enqueue_scripts', 'gt_patterns_front_script');
+
+function gt_patterns_convention_script()
+{
+	$path = GT_PATTERNS_DIR . 'assets/convention.js';
+	wp_enqueue_script(
+		'gt-patterns-convention',
+		GT_PATTERNS_URL . 'assets/convention.js',
+		array(),
+		file_exists($path) ? (string) filemtime($path) : GT_PATTERNS_VERSION,
+		array('in_footer' => true, 'strategy' => 'defer')
+	);
+}
+add_action('wp_enqueue_scripts', 'gt_patterns_convention_script');
